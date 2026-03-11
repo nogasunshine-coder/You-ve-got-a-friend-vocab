@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You've Got a Friend – Interactive Worksheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card2: #22263a;
+    --accent: #f5c842;
+    --accent2: #4fd1c5;
+    --accent3: #f97316;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --correct: #34d399;
+    --wrong: #f87171;
+    --border: #2e3352;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(245,200,66,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(79,209,197,0.07) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  .header {
+    position: relative;
+    z-index: 10;
+    padding: 32px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header-left { flex: 1; }
+  .unit-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .header h1 span { color: var(--accent); }
+  .header-score-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 24px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .header-score-box .score-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+  .header-score-box .score-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  /* NAV */
+  .section-nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+    padding: 16px 40px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .section-nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .nav-btn.done { border-color: var(--correct); color: var(--correct); }
+  .nav-btn.done.active { background: var(--correct); color: #000; border-color: var(--correct); }
+
+  /* MAIN */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .section-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 50px;
+  }
+  .section-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
+  .section-subtitle { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(245,200,66,0.3); }
+
+  /* MATCHING EXERCISE */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .match-col-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .match-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .match-item {
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+    transition: all 0.18s;
+    min-width: 120px;
+    flex: 1;
+  }
+  .match-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .match-item.selected { border-color: var(--accent); background: rgba(245,200,66,0.12); color: var(--accent); }
+  .match-item.matched-correct { border-color: var(--correct); background: rgba(52,211,153,0.12); color: var(--correct); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--wrong); background: rgba(248,113,113,0.12); color: var(--wrong); }
+  .match-item.disabled { cursor: default; opacity: 0.6; }
+
+  /* DROPDOWN EXERCISE */
+  .dialogue-block { margin-bottom: 24px; }
+  .dialogue-line { font-size: 15px; line-height: 1.8; margin-bottom: 6px; }
+  .dialogue-line .speaker { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); margin-right: 6px; }
+  .inline-select {
+    display: inline-block;
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    min-width: 110px;
+    transition: all 0.18s;
+    vertical-align: middle;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .inline-select:focus { outline: none; border-color: var(--accent); }
+  .inline-select.correct { border-color: var(--correct); color: var(--correct); background: rgba(52,211,153,0.1); }
+  .inline-select.wrong { border-color: var(--wrong); color: var(--wrong); background: rgba(248,113,113,0.1); }
+
+  /* TABLE EXERCISE */
+  .translation-table { width: 100%; border-collapse: collapse; }
+  .translation-table th {
+    background: rgba(245,200,66,0.1);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--accent);
+  }
+  .translation-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .translation-table tr:last-child td { border-bottom: none; }
+  .translation-input {
+    width: 100%;
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    transition: all 0.18s;
+    direction: rtl;
+  }
+  .translation-input:focus { outline: none; border-color: var(--accent); }
+  .translation-input.correct { border-color: var(--correct); color: var(--correct); }
+  .translation-input.wrong { border-color: var(--wrong); color: var(--wrong); }
+
+  /* FILL BLANKS EXERCISE */
+  .fill-sentence { font-size: 15px; line-height: 2; margin-bottom: 16px; }
+  .fill-blank {
+    display: inline-block;
+    background: var(--card2);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    min-width: 120px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    cursor: text;
+    transition: all 0.18s;
+    vertical-align: middle;
+    text-align: center;
+  }
+  .fill-blank:focus { outline: none; border-color: var(--accent); }
+  .fill-blank.correct { border-color: var(--correct); color: var(--correct); background: rgba(52,211,153,0.1); }
+  .fill-blank.wrong { border-color: var(--wrong); color: var(--wrong); background: rgba(248,113,113,0.1); }
+
+  /* WORD BANK */
+  .word-bank {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .word-bank-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .word-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .word-tag {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+  }
+  .word-tag.used { opacity: 0.35; text-decoration: line-through; }
+
+  /* CHECK BUTTON */
+  .check-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.18s;
+    letter-spacing: 1px;
+  }
+  .check-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,200,66,0.3); }
+  .check-btn:active { transform: translateY(0); }
+  .check-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* SECTION SCORE */
+  .section-score-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-top: 24px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+  }
+  .section-score-bar.visible { display: flex; }
+  .ss-text { font-size: 14px; color: var(--muted); }
+  .ss-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--accent); margin-left: auto; }
+  .ss-msg { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* FEEDBACK */
+  .feedback-pill {
+    display: inline-block;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
+  .feedback-pill.correct { background: rgba(52,211,153,0.2); color: var(--correct); }
+  .feedback-pill.wrong { background: rgba(248,113,113,0.2); color: var(--wrong); }
+
+  /* NAV ARROWS */
+  .section-nav-btns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .arrow-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    transition: all 0.18s;
+  }
+  .arrow-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* FINAL SCORE */
+  .final-score-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .final-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .final-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .final-message {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 16px;
+    margin-bottom: 32px;
+  }
+  .final-breakdown {
+    max-width: 400px;
+    margin: 0 auto 32px;
+    text-align: left;
+  }
+  .final-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .final-row:last-child { border-bottom: none; }
+  .final-row-pts { font-family: 'Space Mono', monospace; color: var(--accent); font-weight: 700; }
+
+  /* ATTEMPTS indicator */
+  .attempts-left {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .attempts-left .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 2px;
+    vertical-align: middle;
+  }
+  .attempts-left .dot.used { background: var(--border); }
+
+  /* BOLD highlight in exercises */
+  strong { color: var(--accent2); font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .match-grid { grid-template-columns: 1fr; }
+    .header { padding: 20px; }
+    .section-nav { padding: 12px 20px; }
+    main { padding: 20px 16px 60px; }
+    .final-big { font-size: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="unit-tag">English · Grade 7</div>
+    <h1>You've Got a <span>Friend</span></h1>
+  </div>
+  <div class="header-score-box">
+    <div class="score-label">Total Score</div>
+    <div class="score-val" id="total-score-display">0</div>
+    <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">/ <span id="total-max">0</span></div>
+  </div>
+</header>
+
+<nav class="section-nav" id="section-nav">
+  <button class="nav-btn active" onclick="goToSection(0)">1 · Match Dialogues</button>
+  <button class="nav-btn" onclick="goToSection(1)">2 · Fill Dropdowns</button>
+  <button class="nav-btn" onclick="goToSection(2)">3 · Word Match Hebrew</button>
+  <button class="nav-btn" onclick="goToSection(3)">4 · Translate Table</button>
+  <button class="nav-btn" onclick="goToSection(4)">5 · Definitions</button>
+  <button class="nav-btn" onclick="goToSection(5)">6 · Phrase Endings</button>
+  <button class="nav-btn" onclick="goToSection(6)">✦ Final Score</button>
+</nav>
+
+<main>
+
+<!-- ===== SECTION 1: Match Dialogues ===== -->
+<section class="section active" id="sec-0">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div>
+      <div class="section-title">Match the Question with the Correct Answer</div>
+      <div class="section-subtitle">In each dialogue, match the question with the correct answer. Click a question, then click its answer.</div>
+    </div>
+  </div>
+
+  <div class="match-grid">
+    <div>
+      <div class="match-col-label">Question</div>
+      <div class="match-items" id="s1-questions">
+        <div class="match-item" data-id="q1" onclick="s1Select(this,'q')">I don't know if I can manage.</div>
+        <div class="match-item" data-id="q2" onclick="s1Select(this,'q')">How can I improve my English vocabulary?</div>
+        <div class="match-item" data-id="q3" onclick="s1Select(this,'q')">I don't understand the instructions.</div>
+        <div class="match-item" data-id="q4" onclick="s1Select(this,'q')">The customer is very angry. What should I do?</div>
+        <div class="match-item" data-id="q5" onclick="s1Select(this,'q')">My computer isn't working.</div>
+      </div>
+    </div>
+    <div>
+      <div class="match-col-label">Answer</div>
+      <div class="match-items" id="s1-answers">
+        <div class="match-item" data-id="a1" data-match="q1" onclick="s1Select(this,'a')">All you have to do is ask her! She's very <strong>helpful</strong>.</div>
+        <div class="match-item" data-id="a2" data-match="q2" onclick="s1Select(this,'a')">All you have to do is read <strong>a little</strong> every day.</div>
+        <div class="match-item" data-id="a3" data-match="q3" onclick="s1Select(this,'a')">All you have to do is write one true <strong>sentence</strong> about yourself.</div>
+        <div class="match-item" data-id="a4" data-match="q4" onclick="s1Select(this,'a')">All you have to do is <strong>say sorry</strong>.</div>
+        <div class="match-item" data-id="a5" data-match="q5" onclick="s1Select(this,'a')">All you have to do is <strong>press</strong> the power <strong>button</strong> and restart it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="attempts-left" id="s1-attempts">
+    Attempts remaining: <span class="dot" id="s1d1"></span><span class="dot" id="s1d2"></span>
+  </div>
+
+  <button class="check-btn" id="s1-check-btn" onclick="checkSection1()">✓ Check Answers</button>
+  <div class="section-score-bar" id="s1-score-bar">
+    <div>
+      <div class="ss-text">Section Score</div>
+      <div class="ss-msg" id="s1-msg"></div>
+    </div>
+    <div class="ss-val" id="s1-score-val">0/5</div>
+  </div>
+
+  <div class="section-nav-btns">
+    <button class="arrow-btn" disabled>← Back</button>
+    <button class="arrow-btn" onclick="goToSection(1)">Next →</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 2: Dropdown Dialogues ===== -->
+<section class="section" id="sec-1">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div>
+      <div class="section-title">Complete the Dialogues</div>
+      <div class="section-subtitle">Choose the correct word from the dropdown to complete each response.</div>
+    </div>
+  </div>
+
+  <div class="word-bank">
+    <div class="word-bank-title">Word Bank</div>
+    <div class="word-tags">
+      <span class="word-tag">follow</span>
+      <span class="word-tag">tell</span>
+      <span class="word-tag">let me know</span>
+      <span class="word-tag">sit back</span>
+      <span class="word-tag">follow</span>
+    </div>
+  </div>
+
+  <!-- Dialogue 1 -->
+  <div class="card dialogue-block">
+    <div class="dialogue-line"><span class="speaker">A:</span> These instructions are confusing.</div>
+    <div class="dialogue-line"><span class="speaker">B:</span> All you have to do is 
+      <select class="inline-select" id="d1" onchange="checkDropdown(this,'follow')">
+        <option value="">– choose –</option>
+        <option value="follow">follow</option>
+        <option value="tell">tell</option>
+        <option value="let me know">let me know</option>
+        <option value="sit back">sit back</option>
+      </select>
+      these simple <strong>steps</strong>.
+    </div>
+  </div>
+
+  <!-- Dialogue 2 -->
+  <div class="card dialogue-block">
+    <div class="dialogue-line"><span class="speaker">A:</span> I did it <strong>by mistake</strong>.</div>
+    <div class="dialogue-line"><span class="speaker">B:</span> All you have to do is 
+      <select class="inline-select" id="d2" onchange="checkDropdown(this,'tell')">
+        <option value="">– choose –</option>
+        <option value="follow">follow</option>
+        <option value="tell">tell</option>
+        <option value="let me know">let me know</option>
+        <option value="sit back">sit back</option>
+      </select>
+      the truth.
+    </div>
+  </div>
+
+  <!-- Dialogue 3 -->
+  <div class="card dialogue-block">
+    <div class="dialogue-line"><span class="speaker">A:</span> Sorry, I didn't have time to meet you.</div>
+    <div class="dialogue-line"><span class="speaker">B:</span> All you have to do is 
+      <select class="inline-select" id="d3" onchange="checkDropdown(this,'let me know')">
+        <option value="">– choose –</option>
+        <option value="follow">follow</option>
+        <option value="tell">tell</option>
+        <option value="let me know">let me know</option>
+        <option value="sit back">sit back</option>
+      </select>
+      know <strong>in advance</strong> next time.
+    </div>
+  </div>
+
+  <!-- Dialogue 4 -->
+  <div class="card dialogue-block">
+    <div class="dialogue-line"><span class="speaker">A:</span> I'm so stressed about tomorrow.</div>
+    <div class="dialogue-line"><span class="speaker">B:</span> All you have to do is 
+      <select class="inline-select" id="d4" onchange="checkDropdown(this,'sit back')">
+        <option value="">– choose –</option>
+        <option value="follow">follow</option>
+        <option value="tell">tell</option>
+        <option value="let me know">let me know</option>
+        <option value="sit back">sit back</option>
+      </select>
+      and relax. You'll be fine.
+    </div>
+  </div>
+
+  <!-- Dialogue 5 -->
+  <div class="card dialogue-block">
+    <div class="dialogue-line"><span class="speaker">A:</span> How do I get an invitation?</div>
+    <div class="dialogue-line"><span class="speaker">B:</span> All you have to do is 
+      <select class="inline-select" id="d5" onchange="checkDropdown(this,'follow')">
+        <option value="">– choose –</option>
+        <option value="follow">follow</option>
+        <option value="tell">tell</option>
+        <option value="let me know">let me know</option>
+        <option value="sit back">sit back</option>
+      </select>
+      us on Instagram.
+    </div>
+  </div>
+
+  <div class="attempts-left" id="s2-attempts">
+    Attempts remaining: <span class="dot" id="s2d1"></span><span class="dot" id="s2d2"></span>
+  </div>
+
+  <button class="check-btn" id="s2-check-btn" onclick="checkSection2()">✓ Check Answers</button>
+  <div class="section-score-bar" id="s2-score-bar">
+    <div>
+      <div class="ss-text">Section Score</div>
+      <div class="ss-msg" id="s2-msg"></div>
+    </div>
+    <div class="ss-val" id="s2-score-val">0/5</div>
+  </div>
+
+  <div class="section-nav-btns">
+    <button class="arrow-btn" onclick="goToSection(0)">← Back</button>
+    <button class="arrow-btn" onclick="goToSection(2)">Next →</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 3: Match Hebrew ===== -->
+<section class="section" id="sec-2">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div>
+      <div class="section-title">Match Words to Their Hebrew Translation</div>
+      <div class="section-subtitle">Click an English word, then click the matching Hebrew word.</div>
+    </div>
+  </div>
+
+  <div class="match-grid">
+    <div>
+      <div class="match-col-label">English</div>
+      <div class="match-items" id="s3-en">
+        <div class="match-item" data-id="e1" onclick="s3Select(this,'e')">tell the truth</div>
+        <div class="match-item" data-id="e2" onclick="s3Select(this,'e')">manage</div>
+        <div class="match-item" data-id="e3" onclick="s3Select(this,'e')">let me know in advance</div>
+        <div class="match-item" data-id="e4" onclick="s3Select(this,'e')">sit back</div>
+        <div class="match-item" data-id="e5" onclick="s3Select(this,'e')">helpful</div>
+        <div class="match-item" data-id="e6" onclick="s3Select(this,'e')">instructions</div>
+        <div class="match-item" data-id="e7" onclick="s3Select(this,'e')">press the button</div>
+      </div>
+    </div>
+    <div>
+      <div class="match-col-label" style="direction:rtl">עברית</div>
+      <div class="match-items" id="s3-he" style="direction:rtl">
+        <div class="match-item" data-id="h1" data-match="e1" onclick="s3Select(this,'h')">להגיד את האמת</div>
+        <div class="match-item" data-id="h2" data-match="e2" onclick="s3Select(this,'h')">להסתדר</div>
+        <div class="match-item" data-id="h3" data-match="e3" onclick="s3Select(this,'h')">תודיע לי מראש</div>
+        <div class="match-item" data-id="h4" data-match="e4" onclick="s3Select(this,'h')">לשבת בנחת</div>
+        <div class="match-item" data-id="h5" data-match="e5" onclick="s3Select(this,'h')">עוזרת לאחרים</div>
+        <div class="match-item" data-id="h6" data-match="e6" onclick="s3Select(this,'h')">הוראות</div>
+        <div class="match-item" data-id="h7" data-match="e7" onclick="s3Select(this,'h')">ללחוץ על כפתור</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="attempts-left" id="s3-attempts">
+    Attempts remaining: <span class="dot" id="s3d1"></span><span class="dot" id="s3d2"></span>
+  </div>
+
+  <button class="check-btn" id="s3-check-btn" onclick="checkSection3()">✓ Check Answers</button>
+  <div class="section-score-bar" id="s3-score-bar">
+    <div>
+      <div class="ss-text">Section Score</div>
+      <div class="ss-msg" id="s3-msg"></div>
+    </div>
+    <div class="ss-val" id="s3-score-val">0/7</div>
+  </div>
+
+  <div class="section-nav-btns">
+    <button class="arrow-btn" onclick="goToSection(1)">← Back</button>
+    <button class="arrow-btn" onclick="goToSection(3)">Next →</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 4: Translation Table ===== -->
+<section class="section" id="sec-3">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div>
+      <div class="section-title">Translate into Hebrew</div>
+      <div class="section-subtitle">Write the Hebrew translation for each English word or phrase.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="translation-table">
+      <thead>
+        <tr>
+          <th>English</th>
+          <th>Hebrew</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>(to) follow</td>
+          <td><input class="translation-input" id="tr1" data-answers="לעקוב,לעקוב אחרי" placeholder="כתוב כאן..." /></td>
+        </tr>
+        <tr>
+          <td>(to) say sorry</td>
+          <td><input class="translation-input" id="tr2" data-answers="להתנצל,לומר סליחה" placeholder="כתוב כאן..." /></td>
+        </tr>
+        <tr>
+          <td>sentence</td>
+          <td><input class="translation-input" id="tr3" data-answers="משפט" placeholder="כתוב כאן..." /></td>
+        </tr>
+        <tr>
+          <td>steps</td>
+          <td><input class="translation-input" id="tr4" data-answers="שלבים,צעדים" placeholder="כתוב כאן..." /></td>
+        </tr>
+        <tr>
+          <td>a little</td>
+          <td><input class="translation-input" id="tr5" data-answers="קצת,מעט" placeholder="כתוב כאן..." /></td>
+        </tr>
+        <tr>
+          <td>button</td>
+          <td><input class="translation-input" id="tr6" data-answers="כפתור" placeholder="כתוב כאן..." /></td>
+        </tr>
+        <tr>
+          <td>by mistake</td>
+          <td><input class="translation-input" id="tr7" data-answers="בטעות" placeholder="כתוב כאן..." /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="attempts-left" id="s4-attempts">
+    Attempts remaining: <span class="dot" id="s4d1"></span><span class="dot" id="s4d2"></span>
+  </div>
+
+  <button class="check-btn" id="s4-check-btn" onclick="checkSection4()">✓ Check Answers</button>
+  <div class="section-score-bar" id="s4-score-bar">
+    <div>
+      <div class="ss-text">Section Score</div>
+      <div class="ss-msg" id="s4-msg"></div>
+    </div>
+    <div class="ss-val" id="s4-score-val">0/7</div>
+  </div>
+
+  <div class="section-nav-btns">
+    <button class="arrow-btn" onclick="goToSection(2)">← Back</button>
+    <button class="arrow-btn" onclick="goToSection(4)">Next →</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 5: Definitions ===== -->
+<section class="section" id="sec-4">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div>
+      <div class="section-title">Match Words to Definitions</div>
+      <div class="section-subtitle">Complete each sentence with a word from the bank. You have <strong>two</strong> extra words.</div>
+    </div>
+  </div>
+
+  <div class="word-bank">
+    <div class="word-bank-title">בנק תשובות</div>
+    <div class="word-tags">
+      <span class="word-tag" id="wb5-press">press</span>
+      <span class="word-tag" id="wb5-tell">tell the truth</span>
+      <span class="word-tag" id="wb5-sentence">sentence</span>
+      <span class="word-tag" id="wb5-steps">steps</span>
+      <span class="word-tag" id="wb5-advance">in advance</span>
+      <span class="word-tag" id="wb5-helpful">helpful</span>
+      <span class="word-tag" id="wb5-mistake">by mistake</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="fill-sentence">1. When you want to turn on the computer, you <span class="fill-blank" contenteditable="true" id="f1" data-answer="press"></span> the power button.</div>
+    <div class="fill-sentence">2. When you <span class="fill-blank" contenteditable="true" id="f2" data-answer="tell the truth"></span>, you say what really happened and do not lie.</div>
+    <div class="fill-sentence">3. When you do something <span class="fill-blank" contenteditable="true" id="f3" data-answer="in advance"></span>, you do it before the time you need to do it.</div>
+    <div class="fill-sentence">4. If someone is <span class="fill-blank" contenteditable="true" id="f4" data-answer="helpful"></span>, they do something for you or give you advice or information.</div>
+    <div class="fill-sentence">5. You do something <span class="fill-blank" contenteditable="true" id="f5" data-answer="by mistake"></span> when you don't mean to do it.</div>
+  </div>
+
+  <div class="attempts-left" id="s5-attempts">
+    Attempts remaining: <span class="dot" id="s5d1"></span><span class="dot" id="s5d2"></span>
+  </div>
+
+  <button class="check-btn" id="s5-check-btn" onclick="checkSection5()">✓ Check Answers</button>
+  <div class="section-score-bar" id="s5-score-bar">
+    <div>
+      <div class="ss-text">Section Score</div>
+      <div class="ss-msg" id="s5-msg"></div>
+    </div>
+    <div class="ss-val" id="s5-score-val">0/5</div>
+  </div>
+
+  <div class="section-nav-btns">
+    <button class="arrow-btn" onclick="goToSection(3)">← Back</button>
+    <button class="arrow-btn" onclick="goToSection(5)">Next →</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 6: Phrase Endings ===== -->
+<section class="section" id="sec-5">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <div>
+      <div class="section-title">Match the Phrase Beginnings to Their Ends</div>
+      <div class="section-subtitle">Click a beginning, then click the correct ending.</div>
+    </div>
+  </div>
+
+  <div class="match-grid">
+    <div>
+      <div class="match-col-label">Beginnings</div>
+      <div class="match-items" id="s6-start">
+        <div class="match-item" data-id="p1" onclick="s6Select(this,'s')">say</div>
+        <div class="match-item" data-id="p2" onclick="s6Select(this,'s')">tell</div>
+        <div class="match-item" data-id="p3" onclick="s6Select(this,'s')">I did it</div>
+        <div class="match-item" data-id="p4" onclick="s6Select(this,'s')">let me know</div>
+        <div class="match-item" data-id="p5" onclick="s6Select(this,'s')">sit back</div>
+        <div class="match-item" data-id="p6" onclick="s6Select(this,'s')">press</div>
+      </div>
+    </div>
+    <div>
+      <div class="match-col-label">Ends</div>
+      <div class="match-items" id="s6-end">
+        <div class="match-item" data-id="e1" data-match="p1" onclick="s6Select(this,'e')">sorry</div>
+        <div class="match-item" data-id="e2" data-match="p2" onclick="s6Select(this,'e')">the truth</div>
+        <div class="match-item" data-id="e3" data-match="p3" onclick="s6Select(this,'e')">by mistake</div>
+        <div class="match-item" data-id="e4" data-match="p4" onclick="s6Select(this,'e')">in advance</div>
+        <div class="match-item" data-id="e5" data-match="p5" onclick="s6Select(this,'e')">and relax</div>
+        <div class="match-item" data-id="e6" data-match="p6" onclick="s6Select(this,'e')">the button</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="attempts-left" id="s6-attempts">
+    Attempts remaining: <span class="dot" id="s6d1"></span><span class="dot" id="s6d2"></span>
+  </div>
+
+  <button class="check-btn" id="s6-check-btn" onclick="checkSection6()">✓ Check Answers</button>
+  <div class="section-score-bar" id="s6-score-bar">
+    <div>
+      <div class="ss-text">Section Score</div>
+      <div class="ss-msg" id="s6-msg"></div>
+    </div>
+    <div class="ss-val" id="s6-score-val">0/6</div>
+  </div>
+
+  <div class="section-nav-btns">
+    <button class="arrow-btn" onclick="goToSection(4)">← Back</button>
+    <button class="arrow-btn" onclick="goToSection(6)">🏆 See Final Score</button>
+  </div>
+</section>
+
+<!-- ===== SECTION 7: Final Score ===== -->
+<section class="section" id="sec-6">
+  <div class="final-score-screen">
+    <div class="final-label">Final Score</div>
+    <div class="final-big" id="final-pct">—</div>
+    <div class="final-message" id="final-msg">Complete all sections to see your score!</div>
+
+    <div class="final-breakdown" id="final-breakdown">
+      <div class="final-row"><span>1 · Match Dialogues</span><span class="final-row-pts" id="f-s1">–</span></div>
+      <div class="final-row"><span>2 · Fill Dropdowns</span><span class="final-row-pts" id="f-s2">–</span></div>
+      <div class="final-row"><span>3 · Hebrew Match</span><span class="final-row-pts" id="f-s3">–</span></div>
+      <div class="final-row"><span>4 · Translation Table</span><span class="final-row-pts" id="f-s4">–</span></div>
+      <div class="final-row"><span>5 · Definitions</span><span class="final-row-pts" id="f-s5">–</span></div>
+      <div class="final-row"><span>6 · Phrase Endings</span><span class="final-row-pts" id="f-s6">–</span></div>
+      <div class="final-row" style="border-top:2px solid var(--accent);margin-top:8px;padding-top:12px;font-weight:700">
+        <span>Total</span><span class="final-row-pts" id="f-total">–</span>
+      </div>
+    </div>
+
+    <button class="check-btn" onclick="goToSection(0)" style="background:var(--accent2);margin:0 auto;display:flex;">↺ Start Over</button>
+  </div>
+
+  <div class="section-nav-btns" style="border-top:none;margin-top:0">
+    <button class="arrow-btn" onclick="goToSection(5)">← Back</button>
+    <span></span>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const STATE_KEY = 'ygaf_state_v2';
+
+let state = {
+  scores: { s1:null, s2:null, s3:null, s4:null, s5:null, s6:null },
+  maxes:  { s1:5,    s2:5,    s3:7,    s4:7,    s5:5,    s6:6 },
+  attempts: { s1:2, s2:2, s3:2, s4:2, s5:2, s6:2 },
+  // matching state
+  s1_selected_q: null, s1_selected_a: null,
+  s1_pairs: {},   // qId -> aId matched
+  s3_selected_e: null, s3_selected_h: null,
+  s3_pairs: {},
+  s6_selected_s: null, s6_selected_e: null,
+  s6_pairs: {},
+  // dropdown state
+  s2_locked: false,
+  // fill state
+  s5_locked: false,
+  s4_locked: false,
+};
+
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STATE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      Object.assign(state, parsed);
+      restoreUI();
+    }
+  } catch(e){}
+}
+
+function restoreUI() {
+  updateTotalScore();
+  updateNavDots();
+  // Restore section scores
+  ['s1','s2','s3','s4','s5','s6'].forEach(s => {
+    if (state.scores[s] !== null) {
+      const idx = parseInt(s[1]) - 1;
+      document.querySelectorAll('.nav-btn')[idx].classList.add('done');
+    }
+  });
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentSection = 0;
+
+function goToSection(idx) {
+  document.querySelectorAll('.section').forEach((s,i) => {
+    s.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  currentSection = idx;
+  if (idx === 6) renderFinalScore();
+  window.scrollTo(0,0);
+}
+
+// ============================================================
+// SCORE HELPERS
+// ============================================================
+function updateTotalScore() {
+  let total = 0, maxTotal = 0;
+  Object.keys(state.scores).forEach(k => {
+    const idx = k[1];
+    const max = state.maxes[k];
+    maxTotal += max;
+    if (state.scores[k] !== null) total += state.scores[k];
+  });
+  document.getElementById('total-score-display').textContent = total;
+  document.getElementById('total-max').textContent = maxTotal;
+}
+
+function showSectionScore(secId, score, max) {
+  const bar = document.getElementById(`${secId}-score-bar`);
+  const val = document.getElementById(`${secId}-score-val`);
+  const msg = document.getElementById(`${secId}-msg`);
+  bar.classList.add('visible');
+  val.textContent = `${score}/${max}`;
+  const pct = Math.round(score/max*100);
+  if (pct === 100) msg.textContent = '🎉 Perfect!';
+  else if (pct >= 70) msg.textContent = '👍 Well done!';
+  else if (pct >= 40) msg.textContent = '📖 Keep practicing.';
+  else msg.textContent = '💪 Try again!';
+  
+  const navIdx = parseInt(secId[1]) - 1;
+  document.querySelectorAll('.nav-btn')[navIdx].classList.add('done');
+  updateTotalScore();
+  saveState();
+}
+
+function updateAttemptDots(secId, remaining) {
+  const d1 = document.getElementById(`${secId}d1`);
+  const d2 = document.getElementById(`${secId}d2`);
+  if (d1) d1.className = 'dot' + (remaining < 2 ? ' used' : '');
+  if (d2) d2.className = 'dot' + (remaining < 1 ? ' used' : '');
+}
+
+function updateNavDots() {
+  ['s1','s2','s3','s4','s5','s6'].forEach((s, i) => {
+    updateAttemptDots(s, state.attempts[s]);
+  });
+}
+
+// ============================================================
+// SECTION 1 – Matching Dialogues
+// ============================================================
+let s1_selQ = null, s1_selA = null;
+const s1_correct = { q1:'a1', q2:'a2', q3:'a3', q4:'a4', q5:'a5' };
+
+function s1Select(el, side) {
+  if (el.classList.contains('matched-correct') || el.classList.contains('disabled')) return;
+  if (state.attempts.s1 <= 0) return;
+
+  if (side === 'q') {
+    document.querySelectorAll('#s1-questions .match-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    s1_selQ = el.dataset.id;
+  } else {
+    document.querySelectorAll('#s1-answers .match-item').forEach(e => { if (!e.classList.contains('matched-correct')) e.classList.remove('selected'); });
+    el.classList.add('selected');
+    s1_selA = el.dataset.id;
+  }
+
+  if (s1_selQ && s1_selA) {
+    const qEl = document.querySelector(`[data-id="${s1_selQ}"]`);
+    const aEl = document.querySelector(`[data-id="${s1_selA}"]`);
+    const correct = s1_correct[s1_selQ] === s1_selA;
+    
+    if (correct) {
+      qEl.classList.remove('selected'); qEl.classList.add('matched-correct');
+      aEl.classList.remove('selected'); aEl.classList.add('matched-correct');
+      state.s1_pairs[s1_selQ] = s1_selA;
+    } else {
+      qEl.classList.add('matched-wrong'); aEl.classList.add('matched-wrong');
+      setTimeout(() => {
+        qEl.classList.remove('matched-wrong','selected');
+        aEl.classList.remove('matched-wrong','selected');
+      }, 700);
+    }
+    s1_selQ = null; s1_selA = null;
+    saveState();
+  }
+}
+
+function checkSection1() {
+  if (state.attempts.s1 <= 0) return;
+  state.attempts.s1--;
+  updateAttemptDots('s1', state.attempts.s1);
+  
+  const score = Object.keys(state.s1_pairs).filter(q => state.s1_pairs[q] === s1_correct[q]).length;
+  state.scores.s1 = score;
+  showSectionScore('s1', score, 5);
+
+  // lock remaining if out of attempts
+  if (state.attempts.s1 <= 0) {
+    document.querySelectorAll('#s1-questions .match-item, #s1-answers .match-item').forEach(el => el.classList.add('disabled'));
+    document.getElementById('s1-check-btn').disabled = true;
+    // show correct answers for unmatched
+    Object.entries(s1_correct).forEach(([qId, aId]) => {
+      const qEl = document.querySelector(`[data-id="${qId}"]`);
+      const aEl = document.querySelector(`[data-id="${aId}"]`);
+      if (!qEl.classList.contains('matched-correct')) {
+        qEl.style.opacity = '0.5';
+        aEl.style.borderColor = 'var(--accent)';
+        aEl.style.opacity = '0.5';
+      }
+    });
+  }
+  saveState();
+}
+
+// ============================================================
+// SECTION 2 – Dropdowns
+// ============================================================
+const s2_correct = { d1:'follow', d2:'tell', d3:'let me know', d4:'sit back', d5:'follow' };
+let s2_attempts_used = [];
+
+function checkDropdown(el, correct) {
+  // live feedback per item (not locked until Check pressed)
+}
+
+function checkSection2() {
+  if (state.attempts.s2 <= 0) return;
+  state.attempts.s2--;
+  updateAttemptDots('s2', state.attempts.s2);
+
+  let score = 0;
+  Object.keys(s2_correct).forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('correct','wrong');
+    if (el.value === s2_correct[id]) {
+      el.classList.add('correct'); score++;
+    } else {
+      el.classList.add('wrong');
+    }
+  });
+  state.scores.s2 = score;
+  showSectionScore('s2', score, 5);
+
+  if (state.attempts.s2 <= 0) {
+    Object.keys(s2_correct).forEach(id => {
+      const el = document.getElementById(id);
+      if (el.value !== s2_correct[id]) {
+        // show answer
+        el.innerHTML = `<option value="${s2_correct[id]}">${s2_correct[id]}</option>`;
+        el.value = s2_correct[id];
+        el.classList.add('wrong');
+      }
+      el.disabled = true;
+    });
+    document.getElementById('s2-check-btn').disabled = true;
+  }
+  saveState();
+}
+
+// ============================================================
+// SECTION 3 – Hebrew Matching
+// ============================================================
+let s3_selE = null, s3_selH = null;
+const s3_correct = { e1:'h1', e2:'h2', e3:'h3', e4:'h4', e5:'h5', e6:'h6', e7:'h7' };
+
+function s3Select(el, side) {
+  if (el.classList.contains('matched-correct') || el.classList.contains('disabled')) return;
+  if (state.attempts.s3 <= 0) return;
+
+  if (side === 'e') {
+    document.querySelectorAll('#s3-en .match-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    s3_selE = el.dataset.id;
+  } else {
+    document.querySelectorAll('#s3-he .match-item').forEach(e => { if (!e.classList.contains('matched-correct')) e.classList.remove('selected'); });
+    el.classList.add('selected');
+    s3_selH = el.dataset.id;
+  }
+
+  if (s3_selE && s3_selH) {
+    const eEl = document.querySelector(`[data-id="${s3_selE}"]`);
+    const hEl = document.querySelector(`[data-id="${s3_selH}"]`);
+    const correct = s3_correct[s3_selE] === s3_selH;
+
+    if (correct) {
+      eEl.classList.remove('selected'); eEl.classList.add('matched-correct');
+      hEl.classList.remove('selected'); hEl.classList.add('matched-correct');
+      state.s3_pairs[s3_selE] = s3_selH;
+    } else {
+      eEl.classList.add('matched-wrong'); hEl.classList.add('matched-wrong');
+      setTimeout(() => {
+        eEl.classList.remove('matched-wrong','selected');
+        hEl.classList.remove('matched-wrong','selected');
+      }, 700);
+    }
+    s3_selE = null; s3_selH = null;
+    saveState();
+  }
+}
+
+function checkSection3() {
+  if (state.attempts.s3 <= 0) return;
+  state.attempts.s3--;
+  updateAttemptDots('s3', state.attempts.s3);
+
+  const score = Object.keys(state.s3_pairs).filter(e => state.s3_pairs[e] === s3_correct[e]).length;
+  state.scores.s3 = score;
+  showSectionScore('s3', score, 7);
+
+  if (state.attempts.s3 <= 0) {
+    document.querySelectorAll('#s3-en .match-item, #s3-he .match-item').forEach(el => el.classList.add('disabled'));
+    document.getElementById('s3-check-btn').disabled = true;
+  }
+  saveState();
+}
+
+// ============================================================
+// SECTION 4 – Translation Table
+// ============================================================
+function checkSection4() {
+  if (state.attempts.s4 <= 0) return;
+  state.attempts.s4--;
+  updateAttemptDots('s4', state.attempts.s4);
+
+  let score = 0;
+  for (let i = 1; i <= 7; i++) {
+    const inp = document.getElementById(`tr${i}`);
+    inp.classList.remove('correct','wrong');
+    const answers = inp.dataset.answers.split(',').map(a => a.trim());
+    const val = inp.value.trim();
+    if (answers.some(a => val === a || val.includes(a.split(' ')[0]))) {
+      inp.classList.add('correct'); score++;
+    } else if (val.length > 0) {
+      inp.classList.add('wrong');
+    } else {
+      inp.classList.add('wrong');
+    }
+  }
+  state.scores.s4 = score;
+  showSectionScore('s4', score, 7);
+
+  if (state.attempts.s4 <= 0) {
+    for (let i = 1; i <= 7; i++) {
+      const inp = document.getElementById(`tr${i}`);
+      inp.disabled = true;
+      if (inp.classList.contains('wrong')) {
+        const answers = inp.dataset.answers.split(',');
+        inp.value = answers[0];
+        inp.style.color = 'var(--accent)';
+        inp.style.borderColor = 'var(--accent)';
+      }
+    }
+    document.getElementById('s4-check-btn').disabled = true;
+  }
+  saveState();
+}
+
+// ============================================================
+// SECTION 5 – Fill in Blanks (Definitions)
+// ============================================================
+function checkSection5() {
+  if (state.attempts.s5 <= 0) return;
+  state.attempts.s5--;
+  updateAttemptDots('s5', state.attempts.s5);
+
+  let score = 0;
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById(`f${i}`);
+    el.classList.remove('correct','wrong');
+    const val = el.textContent.trim().toLowerCase();
+    const ans = el.dataset.answer.toLowerCase();
+    if (val === ans) {
+      el.classList.add('correct'); score++;
+    } else {
+      el.classList.add('wrong');
+    }
+  }
+  state.scores.s5 = score;
+  showSectionScore('s5', score, 5);
+
+  if (state.attempts.s5 <= 0) {
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById(`f${i}`);
+      el.contentEditable = 'false';
+      if (el.classList.contains('wrong')) {
+        el.textContent = el.dataset.answer;
+        el.classList.remove('wrong');
+        el.style.color = 'var(--accent)';
+        el.style.borderColor = 'var(--accent)';
+      }
+    }
+    document.getElementById('s5-check-btn').disabled = true;
+  }
+  saveState();
+}
+
+// ============================================================
+// SECTION 6 – Phrase Endings Matching
+// ============================================================
+let s6_selS = null, s6_selE = null;
+const s6_correct = { p1:'e1', p2:'e2', p3:'e3', p4:'e4', p5:'e5', p6:'e6' };
+
+function s6Select(el, side) {
+  if (el.classList.contains('matched-correct') || el.classList.contains('disabled')) return;
+  if (state.attempts.s6 <= 0) return;
+
+  if (side === 's') {
+    document.querySelectorAll('#s6-start .match-item').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    s6_selS = el.dataset.id;
+  } else {
+    document.querySelectorAll('#s6-end .match-item').forEach(e => { if (!e.classList.contains('matched-correct')) e.classList.remove('selected'); });
+    el.classList.add('selected');
+    s6_selE = el.dataset.id;
+  }
+
+  if (s6_selS && s6_selE) {
+    const sEl = document.querySelector(`[data-id="${s6_selS}"]`);
+    const eEl = document.querySelector(`[data-id="${s6_selE}"]`);
+    const correct = s6_correct[s6_selS] === s6_selE;
+
+    if (correct) {
+      sEl.classList.remove('selected'); sEl.classList.add('matched-correct');
+      eEl.classList.remove('selected'); eEl.classList.add('matched-correct');
+      state.s6_pairs[s6_selS] = s6_selE;
+    } else {
+      sEl.classList.add('matched-wrong'); eEl.classList.add('matched-wrong');
+      setTimeout(() => {
+        sEl.classList.remove('matched-wrong','selected');
+        eEl.classList.remove('matched-wrong','selected');
+      }, 700);
+    }
+    s6_selS = null; s6_selE = null;
+    saveState();
+  }
+}
+
+function checkSection6() {
+  if (state.attempts.s6 <= 0) return;
+  state.attempts.s6--;
+  updateAttemptDots('s6', state.attempts.s6);
+
+  const score = Object.keys(state.s6_pairs).filter(p => state.s6_pairs[p] === s6_correct[p]).length;
+  state.scores.s6 = score;
+  showSectionScore('s6', score, 6);
+
+  if (state.attempts.s6 <= 0) {
+    document.querySelectorAll('#s6-start .match-item, #s6-end .match-item').forEach(el => el.classList.add('disabled'));
+    document.getElementById('s6-check-btn').disabled = true;
+  }
+  saveState();
+}
+
+// ============================================================
+// FINAL SCORE
+// ============================================================
+function renderFinalScore() {
+  let total = 0, maxTotal = 0;
+  const labels = ['s1','s2','s3','s4','s5','s6'];
+  labels.forEach(k => {
+    const max = state.maxes[k];
+    maxTotal += max;
+    const sc = state.scores[k];
+    document.getElementById(`f-${k}`).textContent = sc !== null ? `${sc}/${max}` : `–/${max}`;
+    if (sc !== null) total += sc;
+  });
+  document.getElementById('f-total').textContent = `${total}/${maxTotal}`;
+  const pct = Math.round(total / maxTotal * 100);
+  document.getElementById('final-pct').textContent = pct + '%';
+
+  let msg;
+  if (pct === 100) msg = '🏆 Outstanding! You\'re a star!';
+  else if (pct >= 85) msg = '🎉 Excellent work!';
+  else if (pct >= 70) msg = '👍 Well done!';
+  else if (pct >= 50) msg = '📖 Good effort – keep going!';
+  else msg = '💪 Practice makes perfect!';
+  document.getElementById('final-msg').textContent = msg;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', () => {
+  loadState();
+  updateAttemptDots('s1', state.attempts.s1);
+  updateAttemptDots('s2', state.attempts.s2);
+  updateAttemptDots('s3', state.attempts.s3);
+  updateAttemptDots('s4', state.attempts.s4);
+  updateAttemptDots('s5', state.attempts.s5);
+  updateAttemptDots('s6', state.attempts.s6);
+  updateTotalScore();
+});
+</script>
+</body>
+</html>
