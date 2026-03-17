@@ -449,6 +449,51 @@
   /* BOLD highlight in exercises */
   strong { color: var(--accent2); font-weight: 700; }
 
+  /* INSTRUCTIONS BOX */
+  .instructions-box {
+    background: rgba(245,200,66,0.07);
+    border: 1px solid rgba(245,200,66,0.25);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    direction: rtl;
+    text-align: right;
+  }
+  .instructions-box .inst-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .instructions-box .inst-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .instructions-box .inst-example {
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    border-left: 3px solid var(--accent);
+    border-right: none;
+    border-left: none;
+    border-right: 3px solid var(--accent);
+    direction: rtl;
+  }
+  .instructions-box .inst-example .ex-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
   @media (max-width: 600px) {
     .match-grid { grid-template-columns: 1fr; }
     .header { padding: 20px; }
@@ -466,20 +511,20 @@
     <h1>You've Got a <span>Friend</span></h1>
   </div>
   <div class="header-score-box">
-    <div class="score-label">Total Score</div>
+    <div class="score-label">ציון כולל</div>
     <div class="score-val" id="total-score-display">0</div>
     <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">/ <span id="total-max">0</span></div>
   </div>
 </header>
 
 <nav class="section-nav" id="section-nav">
-  <button class="nav-btn active" onclick="goToSection(0)">1 · Match Dialogues</button>
-  <button class="nav-btn" onclick="goToSection(1)">2 · Fill Dropdowns</button>
-  <button class="nav-btn" onclick="goToSection(2)">3 · Word Match Hebrew</button>
-  <button class="nav-btn" onclick="goToSection(3)">4 · Translate Table</button>
-  <button class="nav-btn" onclick="goToSection(4)">5 · Definitions</button>
-  <button class="nav-btn" onclick="goToSection(5)">6 · Phrase Endings</button>
-  <button class="nav-btn" onclick="goToSection(6)">✦ Final Score</button>
+  <button class="nav-btn active" onclick="goToSection(0)">1 · התאמת דיאלוגים</button>
+  <button class="nav-btn" onclick="goToSection(1)">2 · השלמת דיאלוגים</button>
+  <button class="nav-btn" onclick="goToSection(2)">3 · התאמה לעברית</button>
+  <button class="nav-btn" onclick="goToSection(3)">4 · תרגום לעברית</button>
+  <button class="nav-btn" onclick="goToSection(4)">5 · התאמת הגדרות</button>
+  <button class="nav-btn" onclick="goToSection(5)">6 · השלמת ביטויים</button>
+  <button class="nav-btn" onclick="goToSection(6)">✦ ציון סופי</button>
 </nav>
 
 <main>
@@ -489,8 +534,21 @@
   <div class="section-header">
     <div class="section-num">01</div>
     <div>
-      <div class="section-title">Match the Question with the Correct Answer</div>
-      <div class="section-subtitle">In each dialogue, match the question with the correct answer. Click a question, then click its answer.</div>
+      <div class="section-title">התאמת דיאלוגים</div>
+      <div class="section-subtitle">Match the Question with the Correct Answer</div>
+    </div>
+  </div>
+
+  <div class="instructions-box">
+    <div class="inst-title">📋 הוראות</div>
+    <div class="inst-text">
+      בתרגיל הזה יש שאלות ותשובות. המשימה שלך: להתאים כל שאלה לתשובה הנכונה שלה.<br>
+      לחץ קודם על שאלה (עמודה שמאלית), ואז לחץ על התשובה המתאימה (עמודה ימנית).<br>
+      אם ההתאמה נכונה – הכרטיס יהפוך לירוק ✅. אם לא – הוא יהבהב באדום ❌ ותוכל לנסות שוב.
+    </div>
+    <div class="inst-example">
+      <div class="ex-label">✨ דוגמה</div>
+      שאלה: <em>"I'm hungry."</em> &nbsp;→&nbsp; תשובה: <em>"All you have to do is eat something!"</em>
     </div>
   </div>
 
@@ -518,21 +576,21 @@
   </div>
 
   <div class="attempts-left" id="s1-attempts">
-    Attempts remaining: <span class="dot" id="s1d1"></span><span class="dot" id="s1d2"></span>
+    ניסיונות נותרו: <span class="dot" id="s1d1"></span><span class="dot" id="s1d2"></span>
   </div>
 
-  <button class="check-btn" id="s1-check-btn" onclick="checkSection1()">✓ Check Answers</button>
+  <button class="check-btn" id="s1-check-btn" onclick="checkSection1()">✓ בדוק תשובות</button>
   <div class="section-score-bar" id="s1-score-bar">
     <div>
-      <div class="ss-text">Section Score</div>
+      <div class="ss-text">ציון חלק</div>
       <div class="ss-msg" id="s1-msg"></div>
     </div>
     <div class="ss-val" id="s1-score-val">0/5</div>
   </div>
 
   <div class="section-nav-btns">
-    <button class="arrow-btn" disabled>← Back</button>
-    <button class="arrow-btn" onclick="goToSection(1)">Next →</button>
+    <button class="arrow-btn" disabled>← אחורה</button>
+    <button class="arrow-btn" onclick="goToSection(1)">הבא →</button>
   </div>
 </section>
 
@@ -541,8 +599,22 @@
   <div class="section-header">
     <div class="section-num">02</div>
     <div>
-      <div class="section-title">Complete the Dialogues</div>
-      <div class="section-subtitle">Choose the correct word from the dropdown to complete each response.</div>
+      <div class="section-title">השלמת דיאלוגים</div>
+      <div class="section-subtitle">Complete the Dialogues – Word Bank</div>
+    </div>
+  </div>
+
+  <div class="instructions-box">
+    <div class="inst-title">📋 הוראות</div>
+    <div class="inst-text">
+      קרא כל דיאלוג בין A ל-B. בתשובה של B חסרה מילה אחת.<br>
+      בחר את המילה הנכונה מהרשימה הנפתחת (התפריט הקטן) שמתאימה להקשר של השיחה.<br>
+      שים לב: כל מילה מהבנק יכולה לשמש יותר מפעם אחת!
+    </div>
+    <div class="inst-example">
+      <div class="ex-label">✨ דוגמה</div>
+      A: "I want to learn guitar." &nbsp;→&nbsp; B: "All you have to do is <strong>practice</strong> every day."<br>
+      <span style="color:var(--accent);font-size:12px">← בוחרים את המילה שמשלימה את המשפט בצורה הגיונית</span>
     </div>
   </div>
 
@@ -633,21 +705,21 @@
   </div>
 
   <div class="attempts-left" id="s2-attempts">
-    Attempts remaining: <span class="dot" id="s2d1"></span><span class="dot" id="s2d2"></span>
+    ניסיונות נותרו: <span class="dot" id="s2d1"></span><span class="dot" id="s2d2"></span>
   </div>
 
-  <button class="check-btn" id="s2-check-btn" onclick="checkSection2()">✓ Check Answers</button>
+  <button class="check-btn" id="s2-check-btn" onclick="checkSection2()">✓ בדוק תשובות</button>
   <div class="section-score-bar" id="s2-score-bar">
     <div>
-      <div class="ss-text">Section Score</div>
+      <div class="ss-text">ציון חלק</div>
       <div class="ss-msg" id="s2-msg"></div>
     </div>
     <div class="ss-val" id="s2-score-val">0/5</div>
   </div>
 
   <div class="section-nav-btns">
-    <button class="arrow-btn" onclick="goToSection(0)">← Back</button>
-    <button class="arrow-btn" onclick="goToSection(2)">Next →</button>
+    <button class="arrow-btn" onclick="goToSection(0)">← אחורה</button>
+    <button class="arrow-btn" onclick="goToSection(2)">הבא →</button>
   </div>
 </section>
 
@@ -656,8 +728,21 @@
   <div class="section-header">
     <div class="section-num">03</div>
     <div>
-      <div class="section-title">Match Words to Their Hebrew Translation</div>
-      <div class="section-subtitle">Click an English word, then click the matching Hebrew word.</div>
+      <div class="section-title">התאמת מילים לעברית</div>
+      <div class="section-subtitle">Match English Words to Their Hebrew Translation</div>
+    </div>
+  </div>
+
+  <div class="instructions-box">
+    <div class="inst-title">📋 הוראות</div>
+    <div class="inst-text">
+      בתרגיל הזה יש מילים באנגלית ומילים בעברית.<br>
+      לחץ על מילה באנגלית (עמודה שמאלית), ואז לחץ על התרגום שלה בעברית (עמודה ימנית).<br>
+      זוג נכון יהפוך לירוק ✅. זוג שגוי יהבהב באדום ❌ – נסה שוב!
+    </div>
+    <div class="inst-example">
+      <div class="ex-label">✨ דוגמה</div>
+      <span style="color:var(--accent2)">happy</span> &nbsp;↔&nbsp; <span style="color:var(--accent2)">שמח</span>
     </div>
   </div>
 
@@ -689,21 +774,21 @@
   </div>
 
   <div class="attempts-left" id="s3-attempts">
-    Attempts remaining: <span class="dot" id="s3d1"></span><span class="dot" id="s3d2"></span>
+    ניסיונות נותרו: <span class="dot" id="s3d1"></span><span class="dot" id="s3d2"></span>
   </div>
 
-  <button class="check-btn" id="s3-check-btn" onclick="checkSection3()">✓ Check Answers</button>
+  <button class="check-btn" id="s3-check-btn" onclick="checkSection3()">✓ בדוק תשובות</button>
   <div class="section-score-bar" id="s3-score-bar">
     <div>
-      <div class="ss-text">Section Score</div>
+      <div class="ss-text">ציון חלק</div>
       <div class="ss-msg" id="s3-msg"></div>
     </div>
     <div class="ss-val" id="s3-score-val">0/7</div>
   </div>
 
   <div class="section-nav-btns">
-    <button class="arrow-btn" onclick="goToSection(1)">← Back</button>
-    <button class="arrow-btn" onclick="goToSection(3)">Next →</button>
+    <button class="arrow-btn" onclick="goToSection(1)">← אחורה</button>
+    <button class="arrow-btn" onclick="goToSection(3)">הבא →</button>
   </div>
 </section>
 
@@ -712,8 +797,20 @@
   <div class="section-header">
     <div class="section-num">04</div>
     <div>
-      <div class="section-title">Translate into Hebrew</div>
-      <div class="section-subtitle">Write the Hebrew translation for each English word or phrase.</div>
+      <div class="section-title">תרגום לעברית</div>
+      <div class="section-subtitle">Translate the Following Words into Hebrew</div>
+    </div>
+  </div>
+
+  <div class="instructions-box">
+    <div class="inst-title">📋 הוראות</div>
+    <div class="inst-text">
+      בטבלה הבאה יש מילים ביטויים באנגלית. כתוב את התרגום שלהם לעברית בתיבה שלצד כל מילה.<br>
+      כתוב בעברית! אפשר לכתוב יותר מאפשרות אחת אם אתה מכיר כמה תרגומים.
+    </div>
+    <div class="inst-example">
+      <div class="ex-label">✨ דוגמה</div>
+      <span style="color:var(--accent2)">happy</span> &nbsp;→&nbsp; כותבים בתיבה: <span style="color:var(--accent2)">שמח</span>
     </div>
   </div>
 
@@ -759,21 +856,21 @@
   </div>
 
   <div class="attempts-left" id="s4-attempts">
-    Attempts remaining: <span class="dot" id="s4d1"></span><span class="dot" id="s4d2"></span>
+    ניסיונות נותרו: <span class="dot" id="s4d1"></span><span class="dot" id="s4d2"></span>
   </div>
 
-  <button class="check-btn" id="s4-check-btn" onclick="checkSection4()">✓ Check Answers</button>
+  <button class="check-btn" id="s4-check-btn" onclick="checkSection4()">✓ בדוק תשובות</button>
   <div class="section-score-bar" id="s4-score-bar">
     <div>
-      <div class="ss-text">Section Score</div>
+      <div class="ss-text">ציון חלק</div>
       <div class="ss-msg" id="s4-msg"></div>
     </div>
     <div class="ss-val" id="s4-score-val">0/7</div>
   </div>
 
   <div class="section-nav-btns">
-    <button class="arrow-btn" onclick="goToSection(2)">← Back</button>
-    <button class="arrow-btn" onclick="goToSection(4)">Next →</button>
+    <button class="arrow-btn" onclick="goToSection(2)">← אחורה</button>
+    <button class="arrow-btn" onclick="goToSection(4)">הבא →</button>
   </div>
 </section>
 
@@ -782,8 +879,21 @@
   <div class="section-header">
     <div class="section-num">05</div>
     <div>
-      <div class="section-title">Match Words to Definitions</div>
-      <div class="section-subtitle">Complete each sentence with a word from the bank. You have <strong>two</strong> extra words.</div>
+      <div class="section-title">התאמת מילים להגדרות</div>
+      <div class="section-subtitle">Match Words to Their Definitions</div>
+    </div>
+  </div>
+
+  <div class="instructions-box">
+    <div class="inst-title">📋 הוראות</div>
+    <div class="inst-text">
+      בכל משפט יש הגדרה של מילה או ביטוי מהיחידה. המשימה שלך: למצוא את המילה/ביטוי הנכון מבנק התשובות ולכתוב אותו בחלל הריק.<br>
+      <strong>שים לב:</strong> יש <strong style="color:var(--wrong)">שתי מילים מיותרות</strong> בבנק – לא כולן משמשות תשובה!
+    </div>
+    <div class="inst-example">
+      <div class="ex-label">✨ דוגמה</div>
+      "When you are not sure about something, you feel <span style="background:var(--card2);padding:2px 8px;border-radius:4px;color:var(--accent2)">confused</span>."<br>
+      <span style="color:var(--muted);font-size:12px">← כותבים את המילה מהבנק שמתאימה להגדרה</span>
     </div>
   </div>
 
@@ -809,21 +919,21 @@
   </div>
 
   <div class="attempts-left" id="s5-attempts">
-    Attempts remaining: <span class="dot" id="s5d1"></span><span class="dot" id="s5d2"></span>
+    ניסיונות נותרו: <span class="dot" id="s5d1"></span><span class="dot" id="s5d2"></span>
   </div>
 
-  <button class="check-btn" id="s5-check-btn" onclick="checkSection5()">✓ Check Answers</button>
+  <button class="check-btn" id="s5-check-btn" onclick="checkSection5()">✓ בדוק תשובות</button>
   <div class="section-score-bar" id="s5-score-bar">
     <div>
-      <div class="ss-text">Section Score</div>
+      <div class="ss-text">ציון חלק</div>
       <div class="ss-msg" id="s5-msg"></div>
     </div>
     <div class="ss-val" id="s5-score-val">0/5</div>
   </div>
 
   <div class="section-nav-btns">
-    <button class="arrow-btn" onclick="goToSection(3)">← Back</button>
-    <button class="arrow-btn" onclick="goToSection(5)">Next →</button>
+    <button class="arrow-btn" onclick="goToSection(3)">← אחורה</button>
+    <button class="arrow-btn" onclick="goToSection(5)">הבא →</button>
   </div>
 </section>
 
@@ -832,8 +942,21 @@
   <div class="section-header">
     <div class="section-num">06</div>
     <div>
-      <div class="section-title">Match the Phrase Beginnings to Their Ends</div>
-      <div class="section-subtitle">Click a beginning, then click the correct ending.</div>
+      <div class="section-title">השלמת ביטויים</div>
+      <div class="section-subtitle">Match the Phrase Beginnings to Their Ends</div>
+    </div>
+  </div>
+
+  <div class="instructions-box">
+    <div class="inst-title">📋 הוראות</div>
+    <div class="inst-text">
+      בתרגיל הזה יש תחילות של ביטויים ויש סופים. המשימה: לחבר כל תחילת ביטוי לסיום הנכון שלו.<br>
+      לחץ קודם על כרטיס מהעמודה <strong>"Beginnings"</strong>, ואחר כך לחץ על הסיום המתאים בעמודה <strong>"Ends"</strong>.<br>
+      חשוב: הביטויים שנוצרים הם ביטויים שלמדנו ביחידה!
+    </div>
+    <div class="inst-example">
+      <div class="ex-label">✨ דוגמה</div>
+      <span style="color:var(--accent2)">sit back</span> &nbsp;+&nbsp; <span style="color:var(--accent2)">and relax</span> &nbsp;=&nbsp; <span style="color:var(--correct)">"sit back and relax"</span> ✅
     </div>
   </div>
 
@@ -863,48 +986,48 @@
   </div>
 
   <div class="attempts-left" id="s6-attempts">
-    Attempts remaining: <span class="dot" id="s6d1"></span><span class="dot" id="s6d2"></span>
+    ניסיונות נותרו: <span class="dot" id="s6d1"></span><span class="dot" id="s6d2"></span>
   </div>
 
-  <button class="check-btn" id="s6-check-btn" onclick="checkSection6()">✓ Check Answers</button>
+  <button class="check-btn" id="s6-check-btn" onclick="checkSection6()">✓ בדוק תשובות</button>
   <div class="section-score-bar" id="s6-score-bar">
     <div>
-      <div class="ss-text">Section Score</div>
+      <div class="ss-text">ציון חלק</div>
       <div class="ss-msg" id="s6-msg"></div>
     </div>
     <div class="ss-val" id="s6-score-val">0/6</div>
   </div>
 
   <div class="section-nav-btns">
-    <button class="arrow-btn" onclick="goToSection(4)">← Back</button>
-    <button class="arrow-btn" onclick="goToSection(6)">🏆 See Final Score</button>
+    <button class="arrow-btn" onclick="goToSection(4)">← אחורה</button>
+    <button class="arrow-btn" onclick="goToSection(6)">🏆 ציון סופי</button>
   </div>
 </section>
 
 <!-- ===== SECTION 7: Final Score ===== -->
 <section class="section" id="sec-6">
   <div class="final-score-screen">
-    <div class="final-label">Final Score</div>
+    <div class="final-label">ציון סופי</div>
     <div class="final-big" id="final-pct">—</div>
-    <div class="final-message" id="final-msg">Complete all sections to see your score!</div>
+    <div class="final-message" id="final-msg">סיים את כל החלקים כדי לראות את הציון הסופי!</div>
 
     <div class="final-breakdown" id="final-breakdown">
-      <div class="final-row"><span>1 · Match Dialogues</span><span class="final-row-pts" id="f-s1">–</span></div>
-      <div class="final-row"><span>2 · Fill Dropdowns</span><span class="final-row-pts" id="f-s2">–</span></div>
-      <div class="final-row"><span>3 · Hebrew Match</span><span class="final-row-pts" id="f-s3">–</span></div>
-      <div class="final-row"><span>4 · Translation Table</span><span class="final-row-pts" id="f-s4">–</span></div>
-      <div class="final-row"><span>5 · Definitions</span><span class="final-row-pts" id="f-s5">–</span></div>
-      <div class="final-row"><span>6 · Phrase Endings</span><span class="final-row-pts" id="f-s6">–</span></div>
+      <div class="final-row"><span>1 · התאמת דיאלוגים</span><span class="final-row-pts" id="f-s1">–</span></div>
+      <div class="final-row"><span>2 · השלמת דיאלוגים</span><span class="final-row-pts" id="f-s2">–</span></div>
+      <div class="final-row"><span>3 · התאמה לעברית</span><span class="final-row-pts" id="f-s3">–</span></div>
+      <div class="final-row"><span>4 · תרגום לעברית</span><span class="final-row-pts" id="f-s4">–</span></div>
+      <div class="final-row"><span>5 · התאמת הגדרות</span><span class="final-row-pts" id="f-s5">–</span></div>
+      <div class="final-row"><span>6 · השלמת ביטויים</span><span class="final-row-pts" id="f-s6">–</span></div>
       <div class="final-row" style="border-top:2px solid var(--accent);margin-top:8px;padding-top:12px;font-weight:700">
-        <span>Total</span><span class="final-row-pts" id="f-total">–</span>
+        <span>סה"כ</span><span class="final-row-pts" id="f-total">–</span>
       </div>
     </div>
 
-    <button class="check-btn" onclick="goToSection(0)" style="background:var(--accent2);margin:0 auto;display:flex;">↺ Start Over</button>
+    <button class="check-btn" onclick="goToSection(0)" style="background:var(--accent2);margin:0 auto;display:flex;">↺ התחל מחדש</button>
   </div>
 
   <div class="section-nav-btns" style="border-top:none;margin-top:0">
-    <button class="arrow-btn" onclick="goToSection(5)">← Back</button>
+    <button class="arrow-btn" onclick="goToSection(5)">← אחורה</button>
     <span></span>
   </div>
 </section>
@@ -1001,10 +1124,10 @@ function showSectionScore(secId, score, max) {
   bar.classList.add('visible');
   val.textContent = `${score}/${max}`;
   const pct = Math.round(score/max*100);
-  if (pct === 100) msg.textContent = '🎉 Perfect!';
-  else if (pct >= 70) msg.textContent = '👍 Well done!';
-  else if (pct >= 40) msg.textContent = '📖 Keep practicing.';
-  else msg.textContent = '💪 Try again!';
+  if (pct === 100) msg.textContent = '🎉 מושלם! כל הכבוד!';
+  else if (pct >= 70) msg.textContent = '👍 יפה מאוד!';
+  else if (pct >= 40) msg.textContent = '📖 ממשיכים להתאמן.';
+  else msg.textContent = '💪 נסה שוב, אתה יכול!';
   
   const navIdx = parseInt(secId[1]) - 1;
   document.querySelectorAll('.nav-btn')[navIdx].classList.add('done');
@@ -1349,11 +1472,11 @@ function renderFinalScore() {
   document.getElementById('final-pct').textContent = pct + '%';
 
   let msg;
-  if (pct === 100) msg = '🏆 Outstanding! You\'re a star!';
-  else if (pct >= 85) msg = '🎉 Excellent work!';
-  else if (pct >= 70) msg = '👍 Well done!';
-  else if (pct >= 50) msg = '📖 Good effort – keep going!';
-  else msg = '💪 Practice makes perfect!';
+  if (pct === 100) msg = '🏆 מושלם לחלוטין! אתה כוכב!';
+  else if (pct >= 85) msg = '🎉 עבודה מצוינת!';
+  else if (pct >= 70) msg = '👍 יפה מאוד!';
+  else if (pct >= 50) msg = '📖 מאמץ טוב – ממשיכים!';
+  else msg = '💪 תרגול עושה מושלם!';
   document.getElementById('final-msg').textContent = msg;
 }
 
